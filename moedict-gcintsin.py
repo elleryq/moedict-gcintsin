@@ -8,6 +8,9 @@ from subprocess import Popen
 from subprocess import PIPE
 from subprocess import call
 import argparse
+import re
+
+CHECKED_TONE_AND_SYMBOL = re.compile('˙(?P<symbols>\ ')
 
 
 def download_json():
@@ -60,6 +63,11 @@ def convert(moedict, parallel=True):
                 result.append((k, d))
     return result
 
+
+def transform_checked_tone(s):
+    result = CHECKED_TONE_AND_SYMBOL.match(s)
+    print( result )
+    
 
 def transform_phonetic(s):
     return s.replace(u'˙', u'1').replace(u'ˊ', u'2').replace(
