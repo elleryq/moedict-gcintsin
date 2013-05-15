@@ -8,9 +8,6 @@ from subprocess import Popen
 from subprocess import PIPE
 from subprocess import call
 import argparse
-import re
-
-CHECKED_TONE_AND_SYMBOL = re.compile('˙(?P<symbols>\ ')
 
 
 def download_json():
@@ -64,13 +61,23 @@ def convert(moedict, parallel=True):
     return result
 
 
-def transform_checked_tone(s):
-    result = CHECKED_TONE_AND_SYMBOL.match(s)
-    print( result )
-    
+def transform_checked_tone(us):
+    ul = []
+    found = False
+    for uc in us:
+        if uc == u'˙':
+            found = True
+        elif found and uc == u' ':
+            ul.append(u'1')
+            ul.append(uc)
+            found = False
+        else:
+            ul.append(uc)
+    return u"".join(ul)
+
 
 def transform_phonetic(s):
-    return s.replace(u'˙', u'1').replace(u'ˊ', u'2').replace(
+    return transform_checked_tone(s).replace(u'ˊ', u'2').replace(
         u'ˇ', u'3').replace(u'ˋ', u'4')
 
 
@@ -89,7 +96,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='Convert moedict to gcin tsin file.')
     parser.add_argument("-o", "--output", dest="output_fd",
             help="write tabfile to FILE", metavar="FILE",
             type=argparse.FileType('wt'), required=True)
